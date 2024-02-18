@@ -2,6 +2,7 @@ package workers_pilot
 
 import (
 	"encoding/json"
+	"os"
 	"ya-calc/db"
 	"ya-calc/utils"
 )
@@ -21,6 +22,6 @@ func ProcessCalculatedExpression(data []byte) {
 }
 
 func StartControlling() {
-	utils.SubscribeHandlerToTopic("CalculatedExpressions", 0, ProcessCalculatedExpression, "localhost:9092", "workers")
+	utils.SubscribeHandlerToTopic("CalculatedExpressions", 0, ProcessCalculatedExpression, os.Getenv("KAFKA_URL"), "workers")
 
 }

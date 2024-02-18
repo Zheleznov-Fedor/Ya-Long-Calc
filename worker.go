@@ -80,9 +80,9 @@ func ProcessCalculatedComputation(data []byte) {
 
 func SendEventComputationCalculated(expressionId string, computationId string, notifyAgentId int32, result float32, final bool) {
 	if final {
-		utils.PostMessage(db.ExpressionResult{expressionId, result}, "CalculatedExpressions", "localhost:9092", 0)
+		utils.PostMessage(db.ExpressionResult{expressionId, result}, "CalculatedExpressions", os.Getenv("KAFKA_URL"), 0)
 	} else {
-		utils.PostMessage(db.ComputationResult{computationId, result}, "CalculatedComputations", "localhost:9092", notifyAgentId)
+		utils.PostMessage(db.ComputationResult{computationId, result}, "CalculatedComputations", os.Getenv("KAFKA_URL"), notifyAgentId)
 	}
 }
 
@@ -120,10 +120,10 @@ func main() {
 
 	forever := make(chan bool)
 	go func() {
-		utils.SubscribeHandlerToTopic("NewComputations", ind, ProcessNewComputation, "localhost:9092", "workers")
+		utils.SubscribeHandlerToTopic("NewComputations", ind, ProcessNewComputation, os.Getenv("KAFKA_URL"), "workers")
 	}()
 	go func() {
-		utils.SubscribeHandlerToTopic("CalculatedComputations", ind, ProcessCalculatedComputation, "localhost:9092", "workers")
+		utils.SubscribeHandlerToTopic("CalculatedComputations", ind, ProcessCalculatedComputation, os.Getenv("KAFKA_URL"), "workers")
 	}()
 	fmt.Println("Ready!")
 	<-forever

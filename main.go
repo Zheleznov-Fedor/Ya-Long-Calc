@@ -55,13 +55,12 @@ func handleExpression(w http.ResponseWriter, r *http.Request) {
 		comps := expressions.ExpressionComputations(expr.StrExpr)
 		expr.Id = comps[0].ExpressionId
 		expr.ComputationsCnt = len(comps)
-		expr.ComputationsReadyCnt = 0
 		expr.State = "Calculating"
 		db.Expressions[expr.Id] = expr
 
 		for _, comp = range comps {
 			db.Computations[comp.Id] = comp
-			utils.PostMessage(comp, "NewComputations", "localhost:9092", i)
+			utils.PostMessage(comp, "NewComputations", os.Getenv("KAFKA_URL"), i)
 			i = (i + 1) % db.AgentsCnt
 		}
 
@@ -92,7 +91,10 @@ func handleExpression(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsonData)
+		_, err = w.Write(jsonData)
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 }
